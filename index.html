@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3e8">
+  <title>토종씨앗 OX 퀴즈</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #20372d;
+      --muted: #65756a;
+      --paper: #f4f3e8;
+      --white: #fffef9;
+      --green: #245c43;
+      --green-dark: #193e31;
+      --lime: #d7e58a;
+      --gold: #efbd54;
+      --coral: #d66b51;
+      --line: #e4e5d7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    }
+
+    button { font: inherit; }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(300px, 0.88fr) minmax(480px, 1.12fr);
+    }
+
+    .story {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 38px clamp(28px, 5vw, 72px) 34px;
+      color: #fffef5;
+      background: var(--green-dark);
+    }
+
+    .story::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background: linear-gradient(180deg, rgba(20, 46, 34, .15) 20%, rgba(20, 46, 34, .9) 100%);
+      z-index: 1;
+    }
+
+    .story img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 52% center;
+      opacity: .8;
+    }
+
+    .brand, .story-copy, .story-foot { position: relative; z-index: 2; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 50%;
+      color: var(--lime);
+      font-size: 18px;
+    }
+
+    .story-copy { max-width: 470px; padding: 80px 0 42px; }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--lime);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+
+    h1 {
+      max-width: 450px;
+      margin: 0;
+      font-family: Georgia, "Nanum Myeongjo", serif;
+      font-size: clamp(42px, 5vw, 68px);
+      font-weight: 500;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .story-copy > p:last-child {
+      max-width: 370px;
+      margin: 22px 0 0;
+      color: rgba(255,254,245,.83);
+      font-size: 15px;
+      line-height: 1.8;
+      word-break: keep-all;
+    }
+
+    .story-foot {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,254,245,.75);
+      font-size: 12px;
+    }
+
+    .story-foot span { color: var(--lime); font-size: 18px; }
+
+    .quiz-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px clamp(24px, 6vw, 90px);
+    }
+
+    .quiz-shell { width: min(100%, 590px); }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 42px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .topline-label { display: flex; align-items: center; gap: 9px; }
+
+    .seed-icon {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 50%;
+      background: #e4ebcf;
+      color: var(--green);
+      font-size: 15px;
+    }
+
+    .score-chip {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: rgba(255,254,249,.7);
+      color: var(--green-dark);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .progress-meta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 11px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .progress-count { color: var(--ink); font-weight: 700; }
+
+    .progress-track {
+      height: 6px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #e4e5d7;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--green);
+      transition: width .35s ease;
+    }
+
+    .question-card {
+      margin-top: 30px;
+      padding: clamp(24px, 4vw, 40px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--white);
+      box-shadow: 0 14px 40px rgba(48, 62, 42, .055);
+    }
+
+    .question-number {
+      margin: 0 0 22px;
+      color: #78905b;
+      font-family: Georgia, serif;
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    .question-text {
+      min-height: 116px;
+      margin: 0;
+      font-size: clamp(22px, 2.5vw, 29px);
+      font-weight: 700;
+      line-height: 1.55;
+      letter-spacing: 0;
+      word-break: keep-all;
+    }
+
+    .answer-hint {
+      margin: 14px 0 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .answer-option {
+      position: relative;
+      min-height: 70px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #fffefb;
+      color: var(--ink);
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease, transform .16s ease;
+    }
+
+    .answer-option:hover:not(:disabled) { transform: translateY(-2px); border-color: #9baa7c; }
+    .answer-option[aria-pressed="true"] { border: 2px solid var(--green); background: #eff3e5; }
+    .answer-option:focus-visible, .primary-button:focus-visible, .restart-button:focus-visible { outline: 3px solid #d6a440; outline-offset: 3px; }
+    .answer-option:disabled { cursor: default; }
+
+    .answer-letter {
+      display: block;
+      font-family: Georgia, serif;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .answer-word { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+
+    .feedback {
+      display: none;
+      margin-top: 18px;
+      padding: 15px 17px;
+      border-left: 3px solid var(--green);
+      background: #f0f3e9;
+    }
+
+    .feedback.visible { display: block; animation: appear .24s ease-out; }
+    .feedback.incorrect { border-color: var(--coral); background: #fbefeb; }
+    .feedback-title { margin: 0 0 5px; font-size: 14px; font-weight: 800; }
+    .feedback.incorrect .feedback-title { color: #a94836; }
+    .feedback-text { margin: 0; color: #526457; font-size: 13px; line-height: 1.65; word-break: keep-all; }
+
+    .primary-button {
+      width: 100%;
+      min-height: 54px;
+      margin-top: 20px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .16s ease, transform .16s ease;
+    }
+
+    .primary-button:hover:not(:disabled) { transform: translateY(-1px); background: #1d4c37; }
+    .primary-button:disabled { background: #b7c0b1; cursor: not-allowed; }
+
+    .result { display: none; }
+    .result.visible { display: block; animation: appear .3s ease-out; }
+    .result-mark { margin: 0 0 14px; color: #799157; font-size: 14px; font-weight: 700; }
+    .result h2 { margin: 0; font-family: Georgia, serif; font-size: clamp(34px, 4vw, 48px); font-weight: 500; }
+    .result-summary { margin: 13px 0 25px; color: var(--muted); line-height: 1.7; }
+    .result-score { color: var(--green); font-size: 28px; font-weight: 800; }
+    .review { max-height: 36vh; overflow: auto; border-top: 1px solid var(--line); }
+    .review-item { display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: start; padding: 13px 0; border-bottom: 1px solid var(--line); }
+    .review-icon { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 50%; background: #e6edda; color: var(--green); font-size: 13px; font-weight: 800; }
+    .review-icon.miss { background: #f8e3dc; color: #a94836; }
+    .review-question { margin: 0; font-size: 13px; line-height: 1.55; word-break: keep-all; }
+    .review-answer { white-space: nowrap; color: var(--muted); font-size: 12px; }
+    .restart-button { min-height: 50px; margin-top: 22px; background: var(--green-dark); }
+
+    @keyframes appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 800px) {
+      .page { display: block; }
+      .story { min-height: 245px; height: 31vh; max-height: 310px; padding: 20px 24px; }
+      .story img { object-position: center 54%; }
+      .brand-mark { width: 30px; height: 30px; }
+      .story-copy { padding: 18px 0 0; }
+      .eyebrow { margin-bottom: 8px; font-size: 11px; }
+      h1 { font-size: clamp(34px, 9vw, 46px); }
+      .story-copy > p:last-child { display: none; }
+      .story-foot { font-size: 11px; }
+      .quiz-area { padding: 28px 20px 40px; align-items: flex-start; }
+      .topline { margin-bottom: 28px; }
+      .question-card { margin-top: 22px; padding: 24px 20px; }
+      .question-text { min-height: auto; }
+      .answer-option { min-height: 66px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <aside class="story" aria-label="토종씨앗 소개">
+      <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&amp;fit=crop&amp;w=1200&amp;q=85" alt="햇빛을 받아 자라는 어린 식물">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">芽</span> 씨앗을 잇는 사람들</div>
+      <div class="story-copy">
+        <p class="eyebrow">SEED KEEPER'S QUIZ</p>
+        <h1>토종씨앗<br>OX 퀴즈</h1>
+        <p>우리 땅과 사람들의 손길 속에서 이어 온 씨앗 이야기. 열한 가지 질문으로 함께 알아봐요.</p>
+      </div>
+      <div class="story-foot"><span aria-hidden="true">✳</span> 우리 함께 토종씨앗을 지켜요</div>
+    </aside>
+
+    <section class="quiz-area" aria-label="퀴즈">
+      <div class="quiz-shell">
+        <div class="topline">
+          <div class="topline-label"><span class="seed-icon" aria-hidden="true">✿</span> 씨앗 탐험</div>
+          <div class="score-chip" id="score-chip" aria-live="polite">맞힌 문제 0</div>
+        </div>
+
+        <div id="quiz-view">
+          <div class="progress-meta">
+            <span>천천히 읽고 골라 보세요</span>
+            <span class="progress-count" id="progress-count">01 <span aria-hidden="true">/</span> 11</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="퀴즈 진행률" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" id="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+
+          <section class="question-card" aria-labelledby="question-text">
+            <p class="question-number" id="question-number">QUESTION 01</p>
+            <p class="question-text" id="question-text"></p>
+            <p class="answer-hint">문장이 맞으면 O, 틀리면 X를 선택하세요.</p>
+            <div class="answers" role="group" aria-label="정답 선택">
+              <button class="answer-option" type="button" data-answer="O" aria-pressed="false" aria-label="O, 맞아요">
+                <span class="answer-letter">O</span><span class="answer-word">맞아요</span>
+              </button>
+              <button class="answer-option" type="button" data-answer="X" aria-pressed="false" aria-label="X, 아니에요">
+                <span class="answer-letter">X</span><span class="answer-word">아니에요</span>
+              </button>
+            </div>
+            <div class="feedback" id="feedback" aria-live="polite">
+              <p class="feedback-title" id="feedback-title"></p>
+              <p class="feedback-text" id="feedback-text"></p>
+            </div>
+            <button class="primary-button" id="action-button" type="button" disabled>정답 확인</button>
+          </section>
+        </div>
+
+        <section class="result" id="result-view" aria-labelledby="result-title" aria-live="polite">
+          <p class="result-mark">SEED KEEPER'S QUIZ · FINISH</p>
+          <h2 id="result-title">참 잘했어요!</h2>
+          <p class="result-summary" id="result-summary"></p>
+          <div class="review" id="review-list" aria-label="문제별 정답 확인"></div>
+          <button class="primary-button restart-button" id="restart-button" type="button">다시 도전하기</button>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        text: "토종씨앗은 우리 땅과 사람들의 생활 속에서 오랫동안 이어져 온 씨앗이다.",
+        answer: "O",
+        explanation: "토종씨앗은 농부와 지역 공동체가 씨앗을 받아 이어 오며 우리 생활 속에 자리 잡아 왔어요."
+      },
+      {
+        text: "토종씨앗은 모두 우리나라에서 처음 생겨난 식물의 씨앗이다.",
+        answer: "X",
+        explanation: "처음 생겨난 곳만으로 정해지는 것은 아니에요. 오랫동안 우리 땅에서 이어져 온 역사와 관계가 중요해요."
+      },
+      {
+        text: "토종씨앗은 모양과 색깔이 모두 똑같다.",
+        answer: "X",
+        explanation: "같은 작물도 씨앗마다 모양과 색, 크기가 다를 수 있어요. 그 다양함이 소중한 특징이에요."
+      },
+      {
+        text: "식물을 잘 기르면 씨앗을 받아 다음 해에 다시 심을 수 있다.",
+        answer: "O",
+        explanation: "씨앗을 잘 여물게 해 받아 두면 다음 해에 심을 수 있어요. 작물에 따라 씨앗을 받는 방법은 달라요."
+      },
+      {
+        text: "토종씨앗으로 자란 농작물은 크기와 색깔이 모두 같아야 한다.",
+        answer: "X",
+        explanation: "자라는 환경과 씨앗의 특성에 따라 크기와 색깔은 서로 다르게 나타날 수 있어요."
+      },
+      {
+        text: "씨앗을 받아 이웃과 나누면 다양한 씨앗을 이어 가는 데 도움이 된다.",
+        answer: "O",
+        explanation: "씨앗을 나누고 함께 기르면 여러 씨앗과 재배 경험을 다음 사람에게 전할 수 있어요."
+      },
+      {
+        text: "다양한 씨앗을 보존하면 미래에 식량을 기르는 데 도움이 될 수 있다.",
+        answer: "O",
+        explanation: "다양한 씨앗은 기후와 재배 환경이 달라질 때 식량을 기르는 선택지를 넓혀 줄 수 있어요."
+      },
+      {
+        text: "토종씨앗은 농부와 할머니, 할아버지 등 여러 사람의 손을 거쳐 이어져 오기도 했다.",
+        answer: "O",
+        explanation: "씨앗을 고르고 받아 보관해 온 여러 세대의 손길이 씨앗을 이어 주었어요."
+      },
+      {
+        text: "토종씨앗은 오랫동안 특정 지역의 기후와 재배 환경에 적응해 온 경우가 있다.",
+        answer: "O",
+        explanation: "한 지역에서 오랫동안 재배되며 그곳의 기후와 환경에 적응해 온 씨앗도 있어요."
+      },
+      {
+        text: "시중에서 파는 모든 씨앗은 토종씨앗이다.",
+        answer: "X",
+        explanation: "시중의 씨앗에는 다양한 종류가 있어요. 판매된다는 사실만으로 토종씨앗이라고 할 수는 없어요."
+      },
+      {
+        text: "토종씨앗을 지키는 일은 다양한 생물과 우리의 농업 문화를 지키는 일과도 연결된다.",
+        answer: "O",
+        explanation: "씨앗의 다양성과 함께 씨앗을 길러 온 생태계, 사람들의 지식과 농업 문화도 이어 갈 수 있어요."
+      }
+    ];
+
+    const questionText = document.getElementById("question-text");
+    const questionNumber = document.getElementById("question-number");
+    const progressCount = document.getElementById("progress-count");
+    const progressTrack = document.getElementById("progress-track");
+    const progressFill = document.getElementById("progress-fill");
+    const scoreChip = document.getElementById("score-chip");
+    const feedback = document.getElementById("feedback");
+    const feedbackTitle = document.getElementById("feedback-title");
+    const feedbackText = document.getElementById("feedback-text");
+    const actionButton = document.getElementById("action-button");
+    const answerButtons = [...document.querySelectorAll(".answer-option")];
+    const quizView = document.getElementById("quiz-view");
+    const resultView = document.getElementById("result-view");
+    let currentIndex = 0;
+    let selectedAnswer = null;
+    let results = [];
+
+    function renderQuestion() {
+      const question = questions[currentIndex];
+      const number = String(currentIndex + 1).padStart(2, "0");
+      questionText.textContent = question.text;
+      questionNumber.textContent = `QUESTION ${number}`;
+      progressCount.innerHTML = `${number} <span aria-hidden="true">/</span> ${questions.length}`;
+      progressTrack.setAttribute("aria-valuenow", String(currentIndex));
+      progressFill.style.width = `${(currentIndex / questions.length) * 100}%`;
+      scoreChip.textContent = `맞힌 문제 ${results.filter((result) => result.correct).length}`;
+      selectedAnswer = null;
+      answerButtons.forEach((button) => {
+        button.disabled = false;
+        button.setAttribute("aria-pressed", "false");
+      });
+      feedback.className = "feedback";
+      actionButton.disabled = true;
+      actionButton.textContent = "정답 확인";
+    }
+
+    function showFeedback() {
+      const question = questions[currentIndex];
+      const correct = selectedAnswer === question.answer;
+      results.push({ selected: selectedAnswer, correct });
+      answerButtons.forEach((button) => { button.disabled = true; });
+      feedback.className = `feedback visible${correct ? "" : " incorrect"}`;
+      feedbackTitle.textContent = correct ? "정답이에요!" : `아쉬워요. 정답은 ${question.answer}예요.`;
+      feedbackText.textContent = question.explanation;
+      scoreChip.textContent = `맞힌 문제 ${results.filter((result) => result.correct).length}`;
+      actionButton.disabled = false;
+      actionButton.textContent = currentIndex === questions.length - 1 ? "결과 보기" : "다음 문제";
+      actionButton.focus();
+    }
+
+    function showResult() {
+      const correctCount = results.filter((result) => result.correct).length;
+      const title = correctCount === questions.length ? "씨앗 지킴이예요!" : correctCount >= 7 ? "참 잘했어요!" : "함께 배워 가요!";
+      document.getElementById("result-title").textContent = title;
+      document.getElementById("result-summary").innerHTML = `열한 문제 중 <span class="result-score">${correctCount}개</span>를 맞혔어요.<br>씨앗을 기억하고 나누는 마음이 큰 힘이 됩니다.`;
+      document.getElementById("review-list").innerHTML = questions.map((question, index) => {
+        const result = results[index];
+        const icon = result.correct ? "✓" : "·";
+        const reviewAnswer = result.correct ? `정답 ${question.answer}` : `내 답 ${result.selected} · 정답 ${question.answer}`;
+        return `<div class="review-item"><span class="review-icon${result.correct ? "" : " miss"}" aria-label="${result.correct ? "정답" : "오답"}">${icon}</span><p class="review-question">${question.text}</p><span class="review-answer">${reviewAnswer}</span></div>`;
+      }).join("");
+      progressTrack.setAttribute("aria-valuenow", String(questions.length));
+      progressFill.style.width = "100%";
+      quizView.hidden = true;
+      resultView.classList.add("visible");
+      document.getElementById("restart-button").focus();
+    }
+
+    answerButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (feedback.classList.contains("visible")) return;
+        selectedAnswer = button.dataset.answer;
+        answerButtons.forEach((option) => option.setAttribute("aria-pressed", String(option === button)));
+        actionButton.disabled = false;
+      });
+    });
+
+    actionButton.addEventListener("click", () => {
+      if (selectedAnswer === null) return;
+      if (!feedback.classList.contains("visible")) {
+        showFeedback();
+      } else if (currentIndex < questions.length - 1) {
+        currentIndex += 1;
+        renderQuestion();
+        questionText.focus?.();
+      } else {
+        showResult();
+      }
+    });
+
+    document.getElementById("restart-button").addEventListener("click", () => {
+      currentIndex = 0;
+      results = [];
+      resultView.classList.remove("visible");
+      quizView.hidden = false;
+      renderQuestion();
+      answerButtons[0].focus();
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
